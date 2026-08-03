@@ -7,10 +7,9 @@ import { STORAGE_KEY as PORTAL_SESSION_KEY } from '../../context/AuthContext';
 
 const BASE_URL = import.meta.env.VITE_MACROPAGE_CONNECT_API_URL || 'https://macropage-admin.onrender.com/api';
 
-// Every Macropage Connect route lives under this prefix. Two kinds of paths
-// are carved out and left as-is: POST /auth/login (shared with Mr Fuels
-// Transact) and anything already under /admin (portal-wide admin endpoints,
-// e.g. Integration Platforms, that sit outside the per-product API).
+// Every Macropage Connect route lives under this prefix. One path is
+// carved out and left as-is: POST /auth/login (shared with Mr Fuels
+// Transact).
 const PRODUCT_PREFIX = '/macropage-connect';
 
 export function resolvePath(path) {

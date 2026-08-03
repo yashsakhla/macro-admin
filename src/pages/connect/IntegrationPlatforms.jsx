@@ -63,7 +63,7 @@ export default function ConnectIntegrationPlatforms() {
   );
 
   useEffect(() => {
-    setPlatforms(response?.data || []);
+    setPlatforms(Array.isArray(response?.items) ? response.items : []);
   }, [response]);
 
   useEffect(() => {
