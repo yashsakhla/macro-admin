@@ -13,6 +13,8 @@ import {
   ArrowLeft,
   HelpCircle,
   Puzzle,
+  PlayCircle,
+  CalendarClock,
 } from 'lucide-react';
 import { getProduct, TAB_LABELS } from '../config/products';
 import { useAuth } from '../context/AuthContext';
@@ -31,6 +33,8 @@ const TAB_ICONS = {
   templates: FileText,
   'help-center': HelpCircle,
   'integration-platforms': Puzzle,
+  videos: PlayCircle,
+  'demo-requests': CalendarClock,
 };
 
 const COMMON_TABS = ['dashboard', 'customers', 'support-query'];

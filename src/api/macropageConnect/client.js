@@ -10,7 +10,7 @@ const BASE_URL = import.meta.env.VITE_MACROPAGE_CONNECT_API_URL || 'https://macr
 // Every Macropage Connect route lives under this prefix. One path is
 // carved out and left as-is: POST /auth/login (shared with Mr Fuels
 // Transact).
-const PRODUCT_PREFIX = '/macropage-connect';
+const PRODUCT_PREFIX = '';
 
 export function resolvePath(path) {
   if (path === '/auth/login' || path.startsWith('/admin/')) return path;
@@ -64,7 +64,10 @@ async function request(path, { method = 'GET', body, params, raw = false } = {})
   }
 
   if (response.status === 401) {
-    handleUnauthorized();
+    // Don't force a global logout/redirect for a failed login attempt itself
+    // (wrong credentials also come back as 401) — only for an expired/invalid
+    // session on an already-authenticated request.
+    if (resolvedPath !== '/auth/login') handleUnauthorized();
     throw { statusCode: 401, message: payload?.message || 'Session expired.', path: resolvedPath };
   }
 
@@ -76,11 +79,17 @@ async function request(path, { method = 'GET', body, params, raw = false } = {})
     };
   }
 
-  // Most endpoints wrap the payload as { success, data }. A few (e.g.
-  // Integration Platforms' list route) return extra top-level fields
-  // (count, categories) alongside data — pass `raw: true` to get the whole
-  // envelope instead of just the unwrapped `data`.
-  return raw ? payload : payload?.data;
+  if (raw) return payload;
+
+  // Errors always come back as { success: false, message, code }, but
+  // successful responses on macropage-connect are NOT wrapped in
+  // { success, data } — the payload itself (array or object) IS the data.
+  // Some older/admin-mirrored routes may still use the { success, data }
+  // envelope, so unwrap only when that shape is actually present.
+  if (payload && typeof payload === 'object' && !Array.isArray(payload) && 'success' in payload && 'data' in payload) {
+    return payload.data;
+  }
+  return payload;
 }
 
 export function apiGet(path, params, opts) {

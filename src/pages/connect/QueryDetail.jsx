@@ -6,7 +6,8 @@ import { useApiQuery, useApiMutation } from '../../api/macropageConnect/hooks';
 import AsyncState from './components/AsyncState';
 import TicketStatusBadge from './components/TicketStatusBadge';
 
-const STATUSES = ['open', 'pending', 'resolved', 'closed'];
+const STATUSES = ['OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'];
+const STATUS_LABELS = { OPEN: 'Open', IN_PROGRESS: 'In progress', RESOLVED: 'Resolved', CLOSED: 'Closed' };
 const PRIORITIES = ['low', 'medium', 'high'];
 
 export default function ConnectQueryDetail() {
@@ -61,7 +62,7 @@ export default function ConnectQueryDetail() {
             <div className="card" style={{ marginBottom: 22 }}>
               <div className="card-title">{ticket.subject}</div>
               <div className="card-subtitle">
-                Ticket ID {ticket.id} · Customer {ticket.customer?.name || ticket.customerName || ticket.customerId}
+                Ticket ID {ticket._id} · Customer {ticket.customer?.name || ticket.customerName || ticket.customerId}
               </div>
               {ticket.description && (
                 <p style={{ marginTop: 12, color: 'var(--ink-700)' }}>{ticket.description}</p>
@@ -75,7 +76,7 @@ export default function ConnectQueryDetail() {
                   <label>Status</label>
                   <select value={current.status} onChange={(e) => startEditing('status', e.target.value)}>
                     {STATUSES.map((s) => (
-                      <option key={s} value={s}>{s}</option>
+                      <option key={s} value={s}>{STATUS_LABELS[s]}</option>
                     ))}
                   </select>
                 </div>
@@ -116,7 +117,7 @@ export default function ConnectQueryDetail() {
                 <div style={{ marginTop: 18 }}>
                   <button
                     className="btn-secondary"
-                    onClick={() => navigate(`/p/macropage-connect/live-chat?ticketId=${ticket.id}`)}
+                    onClick={() => navigate(`/p/macropage-connect/live-chat?ticketId=${ticket._id}`)}
                   >
                     <MessageCircle size={14} /> Open live chat for this ticket
                   </button>

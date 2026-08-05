@@ -15,6 +15,14 @@ function emptyCyclePricing() {
   return { price: '', billedAs: '', savings: '' };
 }
 
+function sanitizeCyclePricing(pricing) {
+  return {
+    price: pricing?.price ?? '',
+    billedAs: pricing?.billedAs ?? '',
+    savings: pricing?.savings ?? '',
+  };
+}
+
 function planToForm(plan) {
   return {
     name: plan.name || '',
@@ -23,9 +31,9 @@ function planToForm(plan) {
     cta: plan.cta || '',
     ctaHref: plan.ctaHref || '',
     highlight: !!plan.highlight,
-    monthly: { ...emptyCyclePricing(), ...(plan.pricing?.monthly || {}) },
-    quarterly: { ...emptyCyclePricing(), ...(plan.pricing?.quarterly || {}) },
-    yearly: { ...emptyCyclePricing(), ...(plan.pricing?.yearly || {}) },
+    monthly: sanitizeCyclePricing(plan.pricing?.monthly),
+    quarterly: sanitizeCyclePricing(plan.pricing?.quarterly),
+    yearly: sanitizeCyclePricing(plan.pricing?.yearly),
     features: (plan.features || []).join('\n'),
     notIncluded: (plan.notIncluded || []).join('\n'),
   };

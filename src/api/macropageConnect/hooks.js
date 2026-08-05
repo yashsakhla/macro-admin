@@ -36,6 +36,31 @@ export function useApiQuery(fetcher, deps = []) {
 
 const DEFAULT_PAGE = { items: [], total: 0, page: 1, limit: 20, totalPages: 1 };
 
+// macropage-connect's paginated endpoints aren't consistent about the field
+// name for the list (items/results/docs/logs/data) or return a bare array
+// with no pagination metadata at all — normalize whatever comes back into
+// the shape every page expects instead of trusting one field name.
+function normalizePage(result, params) {
+  if (Array.isArray(result)) {
+    return { items: result, total: result.length, page: 1, limit: result.length || 1, totalPages: 1 };
+  }
+  if (!result || typeof result !== 'object') return DEFAULT_PAGE;
+
+  const items = result.items ?? result.results ?? result.docs ?? result.logs ?? result.data ?? [];
+  const total = result.total ?? result.totalCount ?? result.count ?? items.length;
+  const page = result.page ?? params?.page ?? 1;
+  const limit = result.limit ?? params?.limit ?? items.length ?? DEFAULT_PAGE.limit;
+  const totalPages = result.totalPages ?? (limit ? Math.max(1, Math.ceil(total / limit)) : 1);
+
+  return {
+    items: Array.isArray(items) ? items : [],
+    total,
+    page,
+    limit,
+    totalPages,
+  };
+}
+
 // fetcher: (params) => Promise<{ items, total, page, limit, totalPages }>
 export function usePaginatedQuery(fetcher, params) {
   const [data, setData] = useState(DEFAULT_PAGE);
@@ -51,7 +76,7 @@ export function usePaginatedQuery(fetcher, params) {
     fetcher(params)
       .then((result) => {
         if (id !== requestId.current) return;
-        setData(result || DEFAULT_PAGE);
+        setData(normalizePage(result, params));
         setLoading(false);
       })
       .catch((err) => {
