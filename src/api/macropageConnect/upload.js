@@ -3,7 +3,14 @@
 // XMLHttpRequest directly (fetch has no upload-progress event) while
 // reusing the same base URL, path prefix and 401 handling as everything else.
 import { getToken } from './session';
-import { BASE_URL, resolvePath, handleUnauthorized } from './client';
+import { BASE_URL, resolvePath, handleUnauthorized, apiPost } from './client';
+
+// Same /upload/platform/tutorial route also accepts a plain JSON body for
+// linking an existing YouTube video instead of uploading a file.
+// payload: { url, title, order? }
+export function submitTutorialVideoUrl(payload) {
+  return apiPost('/upload/platform/tutorial', payload);
+}
 
 export const ACCEPTED_TUTORIAL_TYPES = [
   'image/jpeg',
@@ -42,7 +49,7 @@ export function validateImageUpload(file) {
 
 // Returns { url } on success. onProgress(percent) is called as the upload advances.
 export function uploadTutorialFile(file, { onProgress } = {}) {
-  const path = resolvePath('/upload/tutorial');
+  const path = resolvePath('/upload/platform/tutorial');
 
   return new Promise((resolve, reject) => {
     const validationError = validateTutorialFile(file);
@@ -97,7 +104,7 @@ export function uploadTutorialFile(file, { onProgress } = {}) {
 }
 
 export function uploadImageFile(file, { onProgress } = {}) {
-  const path = resolvePath('/upload/image');
+  const path = resolvePath('/upload/platform/image');
 
   return new Promise((resolve, reject) => {
     const validationError = validateImageUpload(file);

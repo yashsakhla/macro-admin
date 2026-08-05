@@ -3,17 +3,17 @@ import { apiGet, apiPatch } from './client';
 // Pricing catalog: Starter / Growth / Scale / Enterprise, each with
 // monthly/quarterly/yearly pricing.
 export function listPlans() {
-  return apiGet('/plans');
+  return apiGet('/billing/plans');
 }
 
 export function updatePlan(id, payload) {
-  return apiPatch(`/plans/${String(id || '').toUpperCase()}`, payload);
+  return apiPatch(`/billing/platform/plans/${String(id || '').toUpperCase()}`, payload);
 }
 
 export function getCustomerPlanHistory(tenantId) {
-  return apiGet(`/plans/customer/${tenantId}`);
+  return apiGet(`/billing/platform/plans/customer/${tenantId}`);
 }
 
 export function getCustomerCurrentPlan(tenantId) {
-  return apiGet(`/plans/customer/${tenantId}/current`);
+  return apiGet(`/billing/platform/plans/customer/${tenantId}/current`);
 }

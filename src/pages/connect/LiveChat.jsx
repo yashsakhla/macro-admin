@@ -8,7 +8,7 @@ import { getSession } from '../../api/macropageConnect/session';
 import AsyncState from './components/AsyncState';
 import TicketStatusBadge from './components/TicketStatusBadge';
 
-const STATUS_FILTERS = ['open', 'pending', 'resolved', 'closed', 'all'];
+const STATUS_FILTERS = ['OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED', 'all'];
 
 // Real-time support console: ticket list on the left, a Socket.io-backed
 // thread (namespace /macropage-connect/support-chat, rooms keyed by
@@ -16,7 +16,7 @@ const STATUS_FILTERS = ['open', 'pending', 'resolved', 'closed', 'all'];
 export default function ConnectLiveChat() {
   const user = getSession()?.user;
   const [searchParams, setSearchParams] = useSearchParams();
-  const [statusFilter, setStatusFilter] = useState('open');
+  const [statusFilter, setStatusFilter] = useState('OPEN');
   const [activeTicketId, setActiveTicketId] = useState(searchParams.get('ticketId') || null);
   const [messages, setMessages] = useState([]);
   const [draft, setDraft] = useState('');
@@ -85,7 +85,7 @@ export default function ConnectLiveChat() {
               }
               onClick={() => setStatusFilter(f)}
             >
-              {f.replace(/_/g, ' ')}
+              {f === 'all' ? 'all' : f.replace(/_/g, ' ').toLowerCase()}
             </button>
           ))}
         </div>
@@ -100,9 +100,9 @@ export default function ConnectLiveChat() {
         >
           {items.map((t) => (
             <div
-              key={t.id}
-              className={`chat-list-item${t.id === activeTicketId ? ' active' : ''}`}
-              onClick={() => selectTicket(t.id)}
+              key={t._id}
+              className={`chat-list-item${t._id === activeTicketId ? ' active' : ''}`}
+              onClick={() => selectTicket(t._id)}
             >
               <div className="chat-avatar">{(t.customer?.name || t.customerName || '?')[0]}</div>
               <div className="chat-list-info">

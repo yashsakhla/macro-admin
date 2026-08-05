@@ -8,7 +8,8 @@ import Pagination from './components/Pagination';
 import CustomerPicker from './components/CustomerPicker';
 import TicketStatusBadge from './components/TicketStatusBadge';
 
-const STATUS_FILTERS = ['All', 'open', 'pending', 'resolved', 'closed'];
+const STATUS_FILTERS = ['All', 'OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'];
+const STATUS_LABELS = { All: 'All', OPEN: 'Open', IN_PROGRESS: 'In progress', RESOLVED: 'Resolved', CLOSED: 'Closed' };
 const PRIORITIES = ['low', 'medium', 'high'];
 const PRIORITY_COLORS = { high: 'red', medium: 'amber', low: 'gray' };
 
@@ -77,7 +78,7 @@ export default function ConnectSupportQuery() {
               }
               onClick={() => setStatus(f)}
             >
-              {f}
+              {STATUS_LABELS[f]}
             </button>
           ))}
         </div>
@@ -112,10 +113,10 @@ export default function ConnectSupportQuery() {
             </thead>
             <tbody>
               {items.map((t) => (
-                <tr key={t.id}>
+                <tr key={t._id}>
                   <td>
                     <div className="cell-primary">{t.subject}</div>
-                    <div className="cell-sub">{t.id}</div>
+                    <div className="cell-sub">{t._id}</div>
                   </td>
                   <td>{t.customer?.name || t.customerName || t.customerId}</td>
                   <td>
@@ -128,7 +129,7 @@ export default function ConnectSupportQuery() {
                   <td>
                     <button
                       className="btn-secondary"
-                      onClick={() => navigate(`/p/macropage-connect/support-query/${t.id}`)}
+                      onClick={() => navigate(`/p/macropage-connect/support-query/${t._id}`)}
                     >
                       Details <ArrowRight size={14} />
                     </button>

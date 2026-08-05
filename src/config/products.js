@@ -31,6 +31,8 @@ export const PRODUCTS = [
       'templates',
       'help-center',
       'integration-platforms',
+      'videos',
+      'demo-requests',
     ],
   },
   {
@@ -65,6 +67,8 @@ export const TAB_LABELS = {
   templates: 'Templates',
   'help-center': 'Help Center',
   'integration-platforms': 'Integration Platforms',
+  videos: 'Videos',
+  'demo-requests': 'Demo Requests',
 };
 
 export function getProduct(id) {

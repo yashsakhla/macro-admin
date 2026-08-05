@@ -28,6 +28,8 @@ import ConnectAdsPopup from './AdsPopup';
 import ConnectTemplates from './Templates';
 import ConnectHelpCenter from './HelpCenter';
 import ConnectIntegrationPlatforms from './IntegrationPlatforms';
+import ConnectVideos from './Videos';
+import ConnectDemoRequests from './DemoRequests';
 
 const IS_CONNECT = 'macropage-connect';
 
@@ -93,4 +95,18 @@ export function HelpCenterRoute() {
 export function IntegrationPlatformsRoute() {
   const { productId } = useParams();
   return productId === IS_CONNECT ? <ConnectIntegrationPlatforms /> : <Navigate to={`/p/${productId}/dashboard`} replace />;
+}
+
+// Connect-exclusive — tutorial videos surfaced inside Macropage Connect
+// specifically, so there's no mock equivalent either.
+export function VideosRoute() {
+  const { productId } = useParams();
+  return productId === IS_CONNECT ? <ConnectVideos /> : <Navigate to={`/p/${productId}/dashboard`} replace />;
+}
+
+// Connect-exclusive — demo requests submitted through Macropage Connect
+// specifically, so there's no mock equivalent either.
+export function DemoRequestsRoute() {
+  const { productId } = useParams();
+  return productId === IS_CONNECT ? <ConnectDemoRequests /> : <Navigate to={`/p/${productId}/dashboard`} replace />;
 }

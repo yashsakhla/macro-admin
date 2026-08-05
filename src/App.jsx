@@ -19,6 +19,8 @@ import {
   TemplatesRoute,
   HelpCenterRoute,
   IntegrationPlatformsRoute,
+  VideosRoute,
+  DemoRequestsRoute,
 } from './pages/connect/RouteSwitch';
 
 export default function App() {
@@ -60,6 +62,8 @@ export default function App() {
             <Route path="templates" element={<TemplatesRoute />} />
             <Route path="help-center" element={<HelpCenterRoute />} />
             <Route path="integration-platforms" element={<IntegrationPlatformsRoute />} />
+            <Route path="videos" element={<VideosRoute />} />
+            <Route path="demo-requests" element={<DemoRequestsRoute />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/" replace />} />

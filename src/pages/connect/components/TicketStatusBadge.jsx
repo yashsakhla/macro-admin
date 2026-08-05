@@ -1,11 +1,18 @@
-// Colors for the ticket status enum: open | pending | resolved | closed
+// Colors for the ticket status enum: OPEN | IN_PROGRESS | RESOLVED | CLOSED
 const COLORS = {
-  open: 'blue',
-  pending: 'amber',
-  resolved: 'green',
-  closed: 'gray',
+  OPEN: 'blue',
+  IN_PROGRESS: 'amber',
+  RESOLVED: 'green',
+  CLOSED: 'gray',
+};
+
+const LABELS = {
+  OPEN: 'Open',
+  IN_PROGRESS: 'In progress',
+  RESOLVED: 'Resolved',
+  CLOSED: 'Closed',
 };
 
 export default function TicketStatusBadge({ status }) {
-  return <span className={`badge ${COLORS[status] || 'gray'}`}>{status}</span>;
+  return <span className={`badge ${COLORS[status] || 'gray'}`}>{LABELS[status] || status}</span>;
 }
