@@ -44,11 +44,13 @@ export default function ConnectCustomerDetails() {
   const tagIds = tags.map((t) => t._id);
   const messageStats = profile?.messageStats || {};
   const historyRows = Array.isArray(planHistory) ? planHistory : planHistory?.items || [];
-  const customerLogItems = Array.isArray(customerMessageLogs?.items)
-    ? customerMessageLogs.items
-    : Array.isArray(customerMessageLogs)
-      ? customerMessageLogs
-      : [];
+  const customerLogItems = Array.isArray(customerMessageLogs?.data)
+    ? customerMessageLogs.data
+    : Array.isArray(customerMessageLogs?.items)
+      ? customerMessageLogs.items
+      : Array.isArray(customerMessageLogs)
+        ? customerMessageLogs
+        : [];
   const totalCustomerLogs = customerMessageLogs?.total ?? customerMessageLogs?.count ?? customerLogItems.length;
   const totalAllLogs = allMessageLogs?.total ?? allMessageLogs?.count ?? 0;
 
@@ -115,7 +117,7 @@ export default function ConnectCustomerDetails() {
               <div className="stat-grid" style={{ marginBottom: 22 }}>
                 <div className="stat-card">
                   <div className="stat-icon"><CreditCard /></div>
-                  <div className="stat-value">{currentPlan?.name || currentPlan?.planName || '—'}</div>
+                  <div className="stat-value">{currentPlan?.name || currentPlan?.planName || customer?.billingPlan || customer?.plan || '—'}</div>
                   <div className="stat-label">Current plan</div>
                 </div>
                 <div className="stat-card">
@@ -170,7 +172,7 @@ export default function ConnectCustomerDetails() {
                     <tbody>
                       {customerLogItems.map((log, index) => (
                         <tr key={log.id || log._id || `${log.customerId || customerId}-${index}`}>
-                          <td>{log.channel || '—'}</td>
+                          <td>{log.type || log.channel || '—'}</td>
                           <td><MessageStatusBadge status={log.status} /></td>
                           <td>{log.createdAt || log.sentAt || '—'}</td>
                           <td style={{ maxWidth: 260, whiteSpace: 'pre-wrap' }}>

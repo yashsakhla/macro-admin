@@ -199,7 +199,7 @@ export default function ConnectDashboard() {
                 {logItems.map((m, i) => (
                   <tr key={m.id || m._id || i}>
                     <td>{m.customer?.name || m.customerName || m.customerId || '—'}</td>
-                    <td>{m.channel || '—'}</td>
+                    <td>{m.type || m.channel || '—'}</td>
                     <td><MessageStatusBadge status={m.status} /></td>
                     <td>{m.createdAt || m.sentAt || '—'}</td>
                   </tr>

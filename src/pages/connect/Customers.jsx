@@ -116,7 +116,7 @@ export default function ConnectCustomers() {
                       <div className="cell-sub">{c.company || c.businessName} · {c.email}</div>
                     </td>
                     <td>{c.billingPlan || c.plan || '—'}</td>
-                    <td>{c.status ? <StatusBadge status={c.status} /> : '—'}</td>
+                    <td>{c.onlineStatus ? <StatusBadge status={c.onlineStatus} /> : '—'}</td>
                     <td>
                       <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                         {customerTags.length === 0
