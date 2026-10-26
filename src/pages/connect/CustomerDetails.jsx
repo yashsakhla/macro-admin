@@ -1,20 +1,26 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Tags, MessageSquare, CreditCard } from 'lucide-react';
-import { getCustomer, getCustomerProfile } from '../../api/macropageConnect/customers';
+import { ArrowLeft, Tags, MessageSquare, CreditCard, CalendarPlus, PlusCircle, Ban, PlayCircle, Trash2 } from 'lucide-react';
+import { getCustomer, getCustomerProfile, unsuspendCustomer } from '../../api/macropageConnect/customers';
 import { getCustomerCurrentPlan, getCustomerPlanHistory } from '../../api/macropageConnect/plans';
 import { listMessageLogs } from '../../api/macropageConnect/messages';
 import { listTags } from '../../api/macropageConnect/tags';
-import { useApiQuery } from '../../api/macropageConnect/hooks';
+import { useApiQuery, useApiMutation } from '../../api/macropageConnect/hooks';
 import { StatusBadge } from '../Dashboard';
 import AsyncState from './components/AsyncState';
 import MessageStatusBadge from './components/MessageStatusBadge';
 import TagsModal from './TagsModal';
+import SubscriptionModal from './SubscriptionModal';
+import AccountActionModal from './AccountActionModal';
 
 export default function ConnectCustomerDetails() {
   const { customerId } = useParams();
   const navigate = useNavigate();
   const [showTagsModal, setShowTagsModal] = useState(false);
+  const [subscriptionMode, setSubscriptionMode] = useState(null); // 'create' | 'extend'
+  const [accountAction, setAccountAction] = useState(null); // 'suspend' | 'delete'
+  const [actionError, setActionError] = useState('');
+  const unsuspendMutation = useApiMutation(unsuspendCustomer);
 
   const { data: customer, loading, error, refetch } = useApiQuery(
     () => getCustomer(customerId),
@@ -24,8 +30,8 @@ export default function ConnectCustomerDetails() {
     () => getCustomerProfile(customerId),
     [customerId]
   );
-  const { data: currentPlan } = useApiQuery(() => getCustomerCurrentPlan(customerId), [customerId]);
-  const { data: planHistory } = useApiQuery(() => getCustomerPlanHistory(customerId), [customerId]);
+  const { data: currentPlan, refetch: refetchCurrentPlan } = useApiQuery(() => getCustomerCurrentPlan(customerId), [customerId]);
+  const { data: planHistory, refetch: refetchPlanHistory } = useApiQuery(() => getCustomerPlanHistory(customerId), [customerId]);
   const {
     data: customerMessageLogs,
     loading: customerMessageLoading,
@@ -53,6 +59,26 @@ export default function ConnectCustomerDetails() {
         : [];
   const totalCustomerLogs = customerMessageLogs?.total ?? customerMessageLogs?.count ?? customerLogItems.length;
   const totalAllLogs = allMessageLogs?.total ?? allMessageLogs?.count ?? 0;
+
+  const isSuspended = String(customer?.accountStatus || customer?.status || '').toLowerCase() === 'suspended';
+  const customerName = customer?.name || customer?.businessName || 'this customer';
+  const expiresAt = currentPlan?.expiresAt || currentPlan?.endDate;
+
+  function refreshAccount() {
+    refetch();
+    refetchCurrentPlan();
+    refetchPlanHistory();
+  }
+
+  async function handleUnsuspend() {
+    setActionError('');
+    try {
+      await unsuspendMutation.mutate(customerId);
+      refreshAccount();
+    } catch (err) {
+      setActionError(err?.message || 'Could not unsuspend the account.');
+    }
+  }
 
   return (
     <div>
@@ -111,6 +137,36 @@ export default function ConnectCustomerDetails() {
                   <Tags size={15} /> Manage tags
                 </button>
               </div>
+            </div>
+
+            <div className="card" style={{ marginBottom: 20 }}>
+              <span className="card-title">Subscription &amp; account</span>
+              <span className="card-subtitle">
+                {expiresAt
+                  ? `Current subscription expires on ${expiresAt}`
+                  : "Manage this customer's subscription and account access"}
+              </span>
+              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                <button className="btn-primary" type="button" onClick={() => setSubscriptionMode('extend')}>
+                  <CalendarPlus size={15} /> Extend subscription
+                </button>
+                <button className="btn-secondary" type="button" onClick={() => setSubscriptionMode('create')}>
+                  <PlusCircle size={15} /> Create subscription
+                </button>
+                {isSuspended ? (
+                  <button className="btn-secondary" type="button" onClick={handleUnsuspend} disabled={unsuspendMutation.loading}>
+                    <PlayCircle size={15} /> {unsuspendMutation.loading ? 'Working…' : 'Unsuspend account'}
+                  </button>
+                ) : (
+                  <button className="btn-secondary" type="button" style={{ color: 'var(--danger)' }} onClick={() => setAccountAction('suspend')}>
+                    <Ban size={15} /> Suspend account
+                  </button>
+                )}
+                <button className="btn-secondary" type="button" style={{ color: 'var(--danger)' }} onClick={() => setAccountAction('delete')}>
+                  <Trash2 size={15} /> Delete account
+                </button>
+              </div>
+              {actionError && <div className="connect-inline-error" style={{ marginTop: 12 }}>{actionError}</div>}
             </div>
 
             <AsyncState loading={profileLoading} error={profileError}>
@@ -225,6 +281,27 @@ export default function ConnectCustomerDetails() {
           </>
         )}
       </AsyncState>
+
+      {subscriptionMode && (
+        <SubscriptionModal
+          mode={subscriptionMode}
+          customerId={customerId}
+          customerName={customerName}
+          onClose={() => setSubscriptionMode(null)}
+          onDone={refreshAccount}
+        />
+      )}
+
+      {accountAction && (
+        <AccountActionModal
+          mode={accountAction}
+          customerId={customerId}
+          customerName={customerName}
+          customerEmail={customer?.email}
+          onClose={() => setAccountAction(null)}
+          onDone={accountAction === 'delete' ? () => navigate('/p/macropage-connect/customers') : refreshAccount}
+        />
+      )}
 
       {showTagsModal && (
         <TagsModal
